@@ -76,13 +76,15 @@ vi prep-rclone.sh
 source ~/fedcli/bin/activate
 
 unset CHECKIN_CLIENT_ID CHECKIN_CLIENT_SECRE CHECKIN_REFRESH_TOKEN EGI_SITE 
-export CHECKIN_CLIENT_ID=<YOUR_CLIENT_ID>
-export CHECKIN_CLIENT_SECRET=<YOUR_CLIENT_SECRET>
-export CHECKIN_REFRESH_TOKEN=<YOUR_REFRESH_TOKEN>
+<marcus>
+export OIDC_AGENT_ACCOUNT=egi
+eval `oidc-keychain --accounts ${OIDC_AGENT_ACCOUNT}`
+export OIDC_ACCESS_TOKEN=`oidc-token ${OIDC_AGENT_ACCOUNT}`
+</marcus>
 
 export EGI_SITE=NCG-INGRID-PT
 export EGI_VO=covid19.eosc-synergy.eu
-export PROJECT_ID=`fedcloud site show-project-id |grep Project|cut -d ':' -f 2|cut -d ' ' -f 2`
+export PROJECT_ID=`fedcloud site show-project-id |grep PROJECT|cut -d ':' -f 2|cut -d ' ' -f 2`
 
 eval "$(fedcloud endpoint env --project-id ${PROJECT_ID})"
 eval "$(fedcloud endpoint token)"

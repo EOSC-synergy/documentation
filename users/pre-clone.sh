@@ -10,7 +10,7 @@ eval `oidc-keychain --accounts ${OIDC_AGENT_ACCOUNT}`
 # If providing access token directly,e.g. from  https://aai.egi.eu/fedcloud/
 # uncomment the following line and set access token there
 
-#export OIDC_ACCESS_TOKEN=<add-access-token-here>
+export OIDC_ACCESS_TOKEN=`oidc-token ${OIDC_AGENT_ACCOUNT}`
 
 # Set site and VO
 
