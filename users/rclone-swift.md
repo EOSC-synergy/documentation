@@ -76,11 +76,9 @@ vi prep-rclone.sh
 source ~/fedcli/bin/activate
 
 unset CHECKIN_CLIENT_ID CHECKIN_CLIENT_SECRE CHECKIN_REFRESH_TOKEN EGI_SITE 
-<marcus>
 export OIDC_AGENT_ACCOUNT=egi
 eval `oidc-keychain --accounts ${OIDC_AGENT_ACCOUNT}`
 export OIDC_ACCESS_TOKEN=`oidc-token ${OIDC_AGENT_ACCOUNT}`
-</marcus>
 
 export EGI_SITE=NCG-INGRID-PT
 export EGI_VO=covid19.eosc-synergy.eu
