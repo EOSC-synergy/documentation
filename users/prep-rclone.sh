@@ -71,6 +71,10 @@ export OS_STORAGE_URL=`fedcloud openstack catalog list --json-output |jq -r  '.[
 
 # finally: pass output:
 
+echo -e "\n########################################\n########################################\n##"
+echo -e "## if you can see this message, you need to call this program in a different way:"
+echo -e "## eval \`$0 $@\`"
+echo -e "##\n########################################\n########################################\n\n"
 echo "export EGI_SITE=${EGI_SITE}"
 echo "export EGI_VO=${EGI_VO}"
 echo "export OS_STORAGE_URL=${OS_STORAGE_URL}"
@@ -82,6 +86,10 @@ echo "export OS_IDENTITY_PROVIDER=${OS_IDENTITY_PROVIDER}"
 echo "export OS_AUTH_URL=${OS_AUTH_URL}"
 echo "export PROJECT_ID=${PROJECT_ID}"
 echo "export OIDC_ACCESS_TOKEN=${OIDC_ACCESS_TOKEN}"
+echo -e "\n########################################\n########################################\n##"
+echo -e "## if you can see this message, you need to call this program in a different way:"
+echo -e "## eval \`$0 $@\`"
+echo -e "##\n########################################\n########################################\n\n"
 
 
 
@@ -89,6 +97,6 @@ echo "Done" >&2
 
 echo -e "\nYou can now look at available endpoints via:"
 echo -e "fedclout openstack catalog list"
-echo -e "\nIf there is a `swift` endpoint, you can use it with the appropriate rclone config like this:"
-echo -e "\n   `rclone lsd myswift:` (note the ending ':'" 
-echo -e "\n   `rclone ls myswift:` (note the ending ':'" 
+echo -e "\nIf there is a \`swift\` endpoint, you can use it with the appropriate rclone config like this:"
+echo -e "\n   \`rclone lsd myswift:\` (note the ending ':'" 
+echo -e "\n   \`rclone ls myswift:\` (note the ending ':'" 
