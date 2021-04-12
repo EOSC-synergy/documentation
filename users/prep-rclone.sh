@@ -30,6 +30,7 @@ unset CHECKIN_CLIENT_ID CHECKIN_CLIENT_SECRE CHECKIN_REFRESH_TOKEN
     fedcloud site list | sed s"/^/    /" >&2
     exit 1
 }
+export EGI_VO
 [ -z $EGI_VO ] && {
     echo "You have not chosen a VO yet, please specify with '--vo'  (or via export EGI_VO)" >&2
     echo "" >&2
@@ -38,12 +39,18 @@ unset CHECKIN_CLIENT_ID CHECKIN_CLIENT_SECRE CHECKIN_REFRESH_TOKEN
     exit 2
 }
 export EGI_SITE
-export EGI_VO
+[ -z $EGI_VO ] && {
+    echo "You have not specified the oidc-agent account to be used. You can specify it with '-o, --oidc-agent-account'  (or via export OIDC_AGENT_ACCOUNT)" >&2
+    echo "We will use >egi< as a default" >&2
+    echo "" >&2
+    echo "Available VOs for site '${EGI_SITE}':" >&2
+    OIDC_AGENT_ACCOUNT=egi
+}
+export OIDC_AGENT_ACCOUNT
 
 echo "Setting up environment for ${EGI_SITE} / ${EGI_VO}" >&2
 
 # OIDC
-OIDC_AGENT_ACCOUNT=egi
 eval `oidc-keychain --accounts ${OIDC_AGENT_ACCOUNT}` >/dev/null
 export OIDC_ACCESS_TOKEN=`oidc-token ${OIDC_AGENT_ACCOUNT}`
 
