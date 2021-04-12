@@ -86,3 +86,9 @@ echo "export OIDC_ACCESS_TOKEN=${OIDC_ACCESS_TOKEN}"
 
 
 echo "Done" >&2
+
+echo -e "\nYou can now look at available endpoints via:"
+echo -e "fedclout openstack catalog list"
+echo -e "\nIf there is a `swift` endpoint, you can use it with the appropriate rclone config like this:"
+echo -e "\n   `rclone lsd myswift:` (note the ending ':'" 
+echo -e "\n   `rclone ls myswift:` (note the ending ':'" 
