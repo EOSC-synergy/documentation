@@ -10,8 +10,8 @@ export OIDC_ACCESS_TOKEN=`oidc-token ${OIDC_AGENT_ACCOUNT}`
 
 # Site Selection
 # FIXME: Make this cmdline based
-EGI_SITE=NCG-INGRID-PT
-EGI_VO=covid19.eosc-synergy.eu
+export EGI_SITE=NCG-INGRID-PT
+export EGI_VO=covid19.eosc-synergy.eu
 #PROJECT_ID=`fedcloud site show-project-id --vo ${EGI_VO} --site ${EGI_SITE} |grep PROJECT|cut -d '=' -f 2|cut -d ' ' -f 2`
 # This sets OS_PROJECT_ID:
 eval "$(fedcloud site show-project-id --vo ${EGI_VO} --site ${EGI_SITE} |grep PROJECT)"
