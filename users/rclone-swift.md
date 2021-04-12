@@ -88,7 +88,7 @@ OS_STORAGE_URL=https://stratus-stor.ncg.ingrid.pt:8080/swift/v1/AUTH_${PROJECT_I
 You can get the storage endpoint from the catalog:
 
 ```bash
-openstack catalog list
+fedcloud openstack catalog list
 ```
 
 In particular you will obtain the endpoint:
