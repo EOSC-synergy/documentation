@@ -66,9 +66,12 @@ With this procedures you will get:
 * a client secret
 * a refresh token
 
-For easy use we have created a script to set the environment variables for the egicli in 
-`prep-rclone.sh`.
+For easy use we have created a script to set the environment variables for the egicli in prep-rclone.sh.
+Simply call:
 
+```bash
+eval `prep-rclone.sh`
+```
 
 This will set all needed environment openstack variables, namely:
 
