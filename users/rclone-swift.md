@@ -21,7 +21,7 @@ to access and use the EGI Check-in service. In particular:
 
 ## Configure the rclone remote
 
-The rclone remote we will configure is of the type `swift and you can configure it by
+The rclone remote we will configure is of the type `swift` and you can configure it by
 executing:
 
 ```
@@ -66,36 +66,11 @@ With this procedures you will get:
 * a client secret
 * a refresh token
 
-For easy use you can create the following script to set the environment variables for the egicli:
+For easy use we have created a script to set the environment variables for the egicli in prep-rclone.sh.
+Simply call:
 
 ```bash
-vi prep-rclone.sh
-
-#!/bin/bash
-
-source ~/fedcli/bin/activate
-
-unset CHECKIN_CLIENT_ID CHECKIN_CLIENT_SECRE CHECKIN_REFRESH_TOKEN EGI_SITE 
-export CHECKIN_CLIENT_ID=<YOUR_CLIENT_ID>
-export CHECKIN_CLIENT_SECRET=<YOUR_CLIENT_SECRET>
-export CHECKIN_REFRESH_TOKEN=<YOUR_REFRESH_TOKEN>
-
-export EGI_SITE=NCG-INGRID-PT
-export EGI_VO=covid19.eosc-synergy.eu
-export PROJECT_ID=`fedcloud site show-project-id |grep Project|cut -d ':' -f 2|cut -d ' ' -f 2`
-
-eval "$(fedcloud endpoint env --project-id ${PROJECT_ID})"
-eval "$(fedcloud endpoint token)"
-
-export OS_AUTH_TOKEN=${OS_TOKEN}
-export OS_AUTH_TYPE=v3token
-export OS_STORAGE_URL=https://stratus-stor.ncg.ingrid.pt:8080/swift/v1/AUTH_${PROJECT_ID}
-```
-
-In this example we have chosen `EGI_SITE=NCG-INGRID-PT` and the VO is covid19.eosc-synergy.eu.
-
-```bash
-source prep-rclone.sh
+eval `prep-rclone.sh`
 ```
 
 This will set all needed environment openstack variables, namely:
@@ -113,7 +88,7 @@ OS_STORAGE_URL=https://stratus-stor.ncg.ingrid.pt:8080/swift/v1/AUTH_${PROJECT_I
 You can get the storage endpoint from the catalog:
 
 ```bash
-openstack catalog list
+fedcloud openstack catalog list
 ```
 
 In particular you will obtain the endpoint:
