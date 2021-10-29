@@ -2,7 +2,7 @@
 
 # check dependencies
 missing=0
-for dep in fedcloud jq oidc-keychain
+for dep in fedcloud jq oidc-agent-service
 do
 	if ! which $dep &>/dev/null
 	then
@@ -56,9 +56,12 @@ if [[ -z $OIDC_AGENT_ACCOUNT ]]; then
 fi
 export OIDC_AGENT_ACCOUNT
 
-# unlock oidc-agent
 echo "Using OIDC Agent Account: $OIDC_AGENT_ACCOUNT"
-eval "$(oidc-keychain --accounts ${OIDC_AGENT_ACCOUNT})" >/dev/null
+eval "$(oidc-agent-service use )" >/dev/null
+if ! oidc-add -a | grep "^${OIDC_AGENT_ACCOUNT}$" >/dev/null; then
+    oidc-add ${OIDC_AGENT_ACCOUNT}
+fi
+
 echo "Setting up environment for ${EGI_SITE} / ${EGI_VO}"
 
 ## Uses:
