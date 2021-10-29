@@ -16,8 +16,7 @@ Follow these instructions:
 1. Install two python packages:
 	1. `fedcloudclient`, see [here](https://fedcloudclient.fedcloud.eu/install.html)
 	1. `python-openstackclient`, see [here](https://pypi.org/project/python-openstackclient/)
-1. Execute the procedure explained [here](https://docs.egi.eu/users/cloud-compute/auth/#check-in-and-access-tokens) to access and use the EGI Check-in service.
-	1. Setup oidc-agent as described [here](https://indigo-dc.gitbook.io/oidc-agent/user/oidc-gen/provider/egi).
+1. Install and setup oidc-agent as described [here](https://indigo-dc.gitbook.io/oidc-agent/user/oidc-gen/provider/egi).
 
 ## Configure rclone remote
 
