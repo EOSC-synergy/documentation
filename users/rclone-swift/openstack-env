@@ -1,0 +1,32 @@
+#!/bin/bash -e
+
+# load common functions
+source $(dirname $0)/.common
+
+set_env() {
+	# cleanup possible rclone-swift-env
+	unset OS_TOKEN
+	unset OS_AUTH_TOKEN
+	unset OS_STORAGE_URL
+
+	export OS_AUTH_TYPE="v3oidcaccesstoken"
+	export OS_PROTOCOL="openid"
+	export OS_IDENTITY_PROVIDER="egi.eu"
+}
+
+
+check_dependencies || return
+# return if the help was displayed
+parse_args $*; [[ $? -eq 255 ]] && return 0
+assure_args || return
+assure_agent_account || return
+export OS_ACCESS_TOKEN="$(oidc-token $OIDC_AGENT_ACCOUNT)"
+
+echo "Setting up openstack environment for VO ${EGI_VO} @ ${EGI_SITE}:"
+echo "\tDetermining project id ..."
+get_project || return
+echo "\tSetting environment variables ..."
+set_env || return
+
+echo 'Now things like `openstack image list` work.'
+

@@ -1,113 +1,53 @@
 #!/bin/bash -e
 
-# check dependencies
-missing=0
-for dep in fedcloud jq oidc-agent-service
-do
-	if ! which $dep &>/dev/null
-	then
-		echo "Missing dependency: $dep"
-		missing=1
+# load common functions
+source $(dirname $0)/.common
+
+
+## Exports: OS_AUTH_TOKEN
+get_scoped_token_for_project() {
+	### Get a token scoped for the site and project ID
+	endPointToken=$(fedcloud endpoint token)
+	eval "$endPointToken"
+	if [[ -z $OS_TOKEN ]]; then
+		echo "Unexpected fedcloud output:\n$endPointToken"
+		return 7
 	fi
-done
-if [[ $missing = 1 ]]; then
-	return 1
-fi
 
-# process arguments
-while [ $# -gt 0 ]; do
-	case "$1" in
-		--site)             EGI_SITE=${2};                      shift   ;;
-		--vo)               EGI_VO=${2};                        shift   ;;
-		--oa-account)       OIDC_AGENT_ACCOUNT=${2};            shift   ;;
-		-h|--help|*)
-			echo "$0"
-			echo "\nArgs:"
-			echo "--site <SITE>       Specify Site (or set via export EGI_SITE)"
-			echo "--vo   <VO>         Specify VO   (or set via export EGI_VO)"
-			echo "Use as:\n    source $0 [<args> [<args>]]\n"
-			return 0
-			;;
-	esac
-    shift
-done
+	export OS_AUTH_TOKEN=${OS_TOKEN} # rename so rclone picks up the token
+	unset OS_TOKEN
+}
 
-if [[ -z $EGI_SITE ]]; then
-    echo "You have not chosen a site, please specify with '--site'  (or via export EGI_SITE)"
-    echo ""
-    echo "Available Sites:"
-    fedcloud site list | sed s"/^/    /"
-    return 2
-fi
-export EGI_SITE
+check_storage_url() {
+	export OS_STORAGE_URL=$(fedcloud openstack --site $EGI_SITE catalog list --json-output \
+		| jq -r  '.[].Result[] | select(.Name == "swift") | .Endpoints[] | select(.interface == "public") | .url ')
 
-if [[ -z $EGI_VO ]]; then
-    echo "You have not chosen a VO yet, please specify with '--vo'  (or via export EGI_VO)"
-    echo ""
-    echo "Available VOs for site '${EGI_SITE}':"
-    fedcloud site show --site ${EGI_SITE}| grep name | cut -d : -f 2 | sed s"/^/   /"
-    return 3
-fi
-export EGI_VO
+	if [[ -n $OS_STORAGE_URL ]]
+	then
+		echo "Found swift endpoint: $OS_STORAGE_URL"
+		echo "You can use it with an appropriate rclone config like this:"
+		echo "\t\`rclone ls myswift:\` (note the trailing ':')"
+	else
+		echo "No swift endpoint found."
+		echo "You can manually look at available endpoints using:"
+		echo "\t\`fedcloud openstack catalog list\`"
+	fi
+}
 
-if [[ -z $OIDC_AGENT_ACCOUNT ]]; then
-	echo "You have not specified the oidc-agent account to be used. You can specify it with '--oa-account'  (or via export OIDC_AGENT_ACCOUNT)"
-    return 4
-fi
-export OIDC_AGENT_ACCOUNT
 
-echo "Using OIDC Agent Account: $OIDC_AGENT_ACCOUNT"
-eval "$(oidc-agent-service use )" >/dev/null
-if ! oidc-add -a | grep "^${OIDC_AGENT_ACCOUNT}$" >/dev/null; then
-    oidc-add ${OIDC_AGENT_ACCOUNT}
-fi
+check_dependencies || return
+# return if the help was displayed
+parse_args $*; [[ $? -eq 255 ]] && return 0
+assure_args || return
+assure_agent_account || return
 
-echo "Setting up environment for ${EGI_SITE} / ${EGI_VO}"
+echo "Setting up rclone environment for VO ${EGI_VO} @ ${EGI_SITE}:"
 
-## Uses:
-# EGI_VO
-# EGI_SITE
-showProjectID="$(fedcloud site show-project-id)"
-if [[ $showProjectID == "VO "*" not found "* ]]; then # Abort if the VO does not exist on the site
-	echo "Unexpected fedcloud output:\n$showProjectID"
-	return 5
-fi
+echo "\tDetermining project id ..."
+get_project || return
 
-## Exports:
-# OS_PROJECT_ID
-# OS_AUTH_URL
-eval "$showProjectID"
-if [[ -z $OS_PROJECT_ID || -z $OS_AUTH_URL ]]; then
-	echo "Unexpected fedcloud output:\n$showProjectID"
-	return 6
-fi
+echo "\tAcquiring scoped token ..."
+get_scoped_token_for_project || return
 
-### Get a token scoped for the site and project ID
-## Exports:
-# OS_TOKEN
-endPointToken=$(fedcloud endpoint token)
-eval "$endPointToken"
-if [[ -z $OS_TOKEN ]]; then
-	echo "Unexpected fedcloud output:\n$endPointToken"
-	return 7
-fi
-
-export OS_AUTH_TOKEN=${OS_TOKEN} # rename so rclone picks up the token
-unset OS_TOKEN
-echo "Done"
-
-# Rclone swift finds the endpoint itself, so this is only for informing the user
-export OS_STORAGE_URL=$(fedcloud openstack --site $EGI_SITE catalog list --json-output \
-	| jq -r  '.[].Result[] | select(.Name == "swift") | .Endpoints[] | select(.interface == "public") | .url ')
-if [[ -n $OS_STORAGE_URL ]]
-then
-	echo -e "\nFound swift endpoint: $OS_STORAGE_URL"
-	echo -e "\nYou can use it with an appropriate rclone config like this:"
-	echo -e "   \`rclone ls myswift:\` (note the trailing ':')"
-else
-	echo -e "\nNo swift endpoint found."
-	echo -e "\nYou can manually look at available endpoints using:"
-	echo -e "   \`fedcloud openstack catalog list\`"
-fi
-
-echo
+echo "\tSearching swift endpoint ...\n"
+check_storage_url
