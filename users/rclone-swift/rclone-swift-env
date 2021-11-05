@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 # load common functions
 source $(dirname $0)/.common
@@ -10,7 +10,7 @@ get_scoped_token_for_project() {
 	endPointToken=$(fedcloud endpoint token)
 	eval "$endPointToken"
 	if [[ -z $OS_TOKEN ]]; then
-		echo "Unexpected fedcloud output:\n$endPointToken"
+		echo -e "Unexpected fedcloud output:\n$endPointToken"
 		return 7
 	fi
 
@@ -24,30 +24,30 @@ check_storage_url() {
 
 	if [[ -n $OS_STORAGE_URL ]]
 	then
-		echo "Found swift endpoint: $OS_STORAGE_URL"
-		echo "You can use it with an appropriate rclone config like this:"
-		echo "\t\`rclone ls myswift:\` (note the trailing ':')"
+		echo -e "Found swift endpoint: $OS_STORAGE_URL"
+		echo -e "You can use it with an appropriate rclone config like this:"
+		echo -e "\t\`rclone ls myswift:\` (note the trailing ':')"
 	else
-		echo "No swift endpoint found."
-		echo "You can manually look at available endpoints using:"
-		echo "\t\`fedcloud openstack catalog list\`"
+		echo -e "No swift endpoint found."
+		echo -e "You can manually look at available endpoints using:"
+		echo -e "\t\`fedcloud openstack catalog list\`"
 	fi
 }
 
 
 check_dependencies || return
 # return if the help was displayed
-parse_args $*; [[ $? -eq 255 ]] && return 0
+parse_args $0 $*; [[ $? -eq 255 ]] && return 0
 assure_args || return
 assure_agent_account || return
 
-echo "Setting up rclone environment for VO ${EGI_VO} @ ${EGI_SITE}:"
+echo -e "Setting up rclone environment for VO ${EGI_VO} @ ${EGI_SITE}:"
 
-echo "\tDetermining project id ..."
+echo -e "\tDetermining project id ..."
 get_project || return
 
-echo "\tAcquiring scoped token ..."
+echo -e "\tAcquiring scoped token ..."
 get_scoped_token_for_project || return
 
-echo "\tSearching swift endpoint ...\n"
+echo -e "\tSearching swift endpoint ...\n"
 check_storage_url

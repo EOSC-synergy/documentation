@@ -17,16 +17,16 @@ set_env() {
 
 check_dependencies || return
 # return if the help was displayed
-parse_args $*; [[ $? -eq 255 ]] && return 0
+parse_args $0 $*; [[ $? -eq 255 ]] && return 0
 assure_args || return
 assure_agent_account || return
 export OS_ACCESS_TOKEN="$(oidc-token $OIDC_AGENT_ACCOUNT)"
 
-echo "Setting up openstack environment for VO ${EGI_VO} @ ${EGI_SITE}:"
-echo "\tDetermining project id ..."
+echo -e "Setting up openstack environment for VO ${EGI_VO} @ ${EGI_SITE}:"
+echo -e "\tDetermining project id ..."
 get_project || return
-echo "\tSetting environment variables ..."
+echo -e "\tSetting environment variables ..."
 set_env || return
 
-echo 'Now things like `openstack image list` work.'
+echo -e 'Now things like `openstack image list` work.'
 

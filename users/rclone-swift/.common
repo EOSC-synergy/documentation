@@ -17,17 +17,19 @@ check_dependencies() {
 
 
 parse_args() {
+	name=$1
+	shift
 	while [ $# -gt 0 ]; do
 		case "$1" in
 			--site)             EGI_SITE=${2};                      shift   ;;
 			--vo)               EGI_VO=${2};                        shift   ;;
 			--oa-account)       OIDC_AGENT_ACCOUNT=${2};            shift   ;;
 			-h|--help|*)
-				echo "$0"
+				echo "$name"
 				echo "\nArgs:"
 				echo "--site <SITE>       Specify Site (or set via export EGI_SITE)"
 				echo "--vo   <VO>         Specify VO   (or set via export EGI_VO)"
-				echo "Use as:\n    source $0 [<args> [<args>]]\n"
+				echo "Use as:\n    source $name [<args> [<args>]]\n"
 				return 255
 				;;
 		esac
