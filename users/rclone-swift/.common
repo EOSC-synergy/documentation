@@ -1,0 +1,96 @@
+#!/bin/bash
+
+check_dependencies() {
+	missing=0
+	for dep in fedcloud jq oidc-agent-service
+	do
+		if ! which $dep &>/dev/null
+		then
+			echo "Missing dependency: $dep"
+			missing=1
+		fi
+	done
+	if [[ $missing = 1 ]]; then
+		return 1
+	fi
+}
+
+
+parse_args() {
+	name=$1
+	shift
+	while [ $# -gt 0 ]; do
+		case "$1" in
+			--site)             EGI_SITE=${2};                      shift   ;;
+			--vo)               EGI_VO=${2};                        shift   ;;
+			--oa-account)       OIDC_AGENT_ACCOUNT=${2};            shift   ;;
+			-h|--help|*)
+				echo "$name"
+				echo "\nArgs:"
+				echo "--site <SITE>       Specify Site (or set via export EGI_SITE)"
+				echo "--vo   <VO>         Specify VO   (or set via export EGI_VO)"
+				echo "Use as:\n    source $name [<args> [<args>]]\n"
+				return 255
+				;;
+		esac
+		shift
+	done
+}
+
+assure_args() {
+	if [[ -z $EGI_SITE ]]; then
+		echo "You have not chosen a site."
+		echo
+		echo "Available sites:"
+		fedcloud site list | sed s"/^/    /"
+		echo
+		echo "Please set the site using: export EGI_SITE=<site>"
+		return 2
+	fi
+	export EGI_SITE
+
+	if [[ -z $EGI_VO ]]; then
+		echo "You have not chosen a VO."
+		echo
+		echo "Available VOs for site ${EGI_SITE}:"
+		fedcloud site show --site ${EGI_SITE}| grep name | cut -d : -f 2 | sed s"/^/   /"
+		echo
+		echo "Please set the VO using: export EGI_VO=<vo>"
+		return 3
+	fi
+	export EGI_VO
+
+	if [[ -z $OIDC_AGENT_ACCOUNT ]]; then
+		echo "You have not specified an oidc-agent account."
+		echo
+		oidc-gen -l
+		echo
+		echo "Please set the account using: export OIDC_AGENT_ACCOUNT=<account>"
+		return 4
+	fi
+	export OIDC_AGENT_ACCOUNT
+}
+
+assure_agent_account() {
+	echo "Using OIDC Agent Account: $OIDC_AGENT_ACCOUNT"
+	eval "$(oidc-agent-service use )" >/dev/null
+	if ! oidc-add -a | grep "^${OIDC_AGENT_ACCOUNT}$" >/dev/null; then
+		oidc-add ${OIDC_AGENT_ACCOUNT}
+	fi
+}
+
+## Uses: 	EGI_VO, EGI_SITE
+## Exports: OS_PROJECT_ID, OS_AUTH_URL
+get_project() {
+	showProjectID="$(fedcloud site show-project-id)"
+	if [[ $showProjectID == "VO "*" not found "* ]]; then # Abort if the VO does not exist on the site
+		echo "Unexpected fedcloud output:\n$showProjectID"
+		return 5
+	fi
+
+	eval "$showProjectID"
+	if [[ -z $OS_PROJECT_ID || -z $OS_AUTH_URL ]]; then
+		echo "Unexpected fedcloud output:\n$showProjectID"
+		return 6
+	fi
+}
