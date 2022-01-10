@@ -7,7 +7,7 @@ can be found at [https://rclone.org/](https://rclone.org/).
 
 To use rclone with Openstack Swift, a set of environment variables have to
 be set-up. The concept is, that we use your Federated Account
-(EGI-Checkin, eudTEAMS, ...) to authenticate in the context of a VO (that
+(EGI-Checkin, eduTEAMS, ...) to authenticate in the context of a VO (that
 you choose) with a specific site (that you choose).
 
 
@@ -15,33 +15,15 @@ you choose) with a specific site (that you choose).
 
 Follow these instructions first:
 1. Install [rclone](https://rclone.org/install/)
-1. Install [jq](https://stedolan.github.io/jq/)
-1. Install two python packages:
-	1. `fedcloudclient`, see [here](https://fedcloudclient.fedcloud.eu/install.html)
-	1. `python-openstackclient`, see [here](https://pypi.org/project/python-openstackclient/)
-1. Install and setup oidc-agent as described [here](https://indigo-dc.gitbook.io/oidc-agent/user/oidc-gen/provider/egi).
-1. Make sure you have a working `go` installation
 1. Follow the Instructions of the [EGI Swift Finder](https://github.com/lburgey/egiSwiftFinder)
 
-
-## Setup Envirionment for rclone
-
-Add the following section to your rclone config file `~/.config/rclone/rclone.conf`:
-```
-[myswift]
-type = swift
-env_auth = true
-```
-
-This will configure a remote `myswift`, which will get all further configuration from the Openstack
-environment variables, as will be shown in the next section.
 
 ## Load environment
 
 Use the [EGI Swift Finder](https://github.com/lburgey/egiSwiftFinder) to
 setup your environment. This will look like this:
 
-```
+```bash
 $ source swift_finder
 ✔ oidc-agent account: egi
 ✔ VO: eosc-synergy.eu
